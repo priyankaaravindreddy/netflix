@@ -2,39 +2,34 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 
 import { authOptions } from "../api/auth/[...nextauth]/route";
-import { NextResponse } from "next/server";
 import fs from "fs";
 const filePath = "data.json";
 
-const serverAuth = async (req: NextApiRequest, res: NextApiResponse) => {
-  const session = await getServerSession(req, res, authOptions);
-
-  if (!session?.user?.email) {
-    throw new Error("Not signed in");
-  }
-
+const serverAuth = async (credentials: { email: string; password: string }) => {
+  console.log("fs.existsSync(filePath)", fs.existsSync(filePath));
   if (fs.existsSync(filePath)) {
     const fileData = fs.readFileSync(filePath, "utf-8");
+    console.log("fileData ", fileData);
     const jsonData = JSON.parse(fileData);
     console.log("jsonData", jsonData);
     // Filter the object based on email
     const currentUser = jsonData?.filter(
       ({
         email: eleEmail,
-        password: elePassword,
+        hashedPassword: elePassword,
       }: {
         email: string;
-        password: string;
-      }) => eleEmail === session?.user?.email
+        hashedPassword: string;
+      }) => eleEmail === credentials?.email
     );
-
+console.log("serverAuth ",currentUser, currentUser?.length > 0 ? currentUser?.[0] : {})
     if (!currentUser) {
       throw new Error("Not signed in");
     }
 
-    return { currentUser };
+    return currentUser?.length > 0 ? currentUser?.[0] : {};
   }
-  return null;
+  return {};
 };
 
 export default serverAuth;

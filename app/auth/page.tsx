@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import axios from "axios";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { redirect } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -9,20 +9,22 @@ import { useRouter } from "next/navigation";
 import Input from "../components/Input";
 
 const Auth = () => {
-  const { data: session } = useSession({
-    required: true,
-    onUnauthenticated() {
-      redirect("/");
-    },
-  });
-  console.log("session ", session);
+  const { data: session } = useSession();
+  console.log("session Auth", session);
 
   const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
 
   const [variant, setVariant] = useState("login");
+
+  // React.useEffect(() => {
+  // if (session) {
+  //   router.push("/");
+  // }
+  // }, [session, router]);
 
   const toggleVariant = useCallback(() => {
     setVariant((currentVariant: string) =>
@@ -36,16 +38,30 @@ const Auth = () => {
       //   email,
       //   password
       // });
-      await signIn("credentials", {
+      const data = await signIn("credentials", {
         email,
         password,
         redirect: false,
         callbackUrl: "/profiles",
       });
+      console.log("data ", data);
+      // router.push("/profiles")
     } catch (error) {
       console.log(error);
     }
   }, [email, password, router]);
+
+  // Call the checkIfSignedIn function when the component mounts
+  useEffect(() => {
+    // This function is used to check if the user is signed in
+    const checkIfSignedIn = () => {
+      if (session) {
+        // If the user is signed in, redirect to the home page
+        window.location.href = "/";
+      }
+    };
+    checkIfSignedIn();
+  }, [session]);
 
   const register = useCallback(async () => {
     try {

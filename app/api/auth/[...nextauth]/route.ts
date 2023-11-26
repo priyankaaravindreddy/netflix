@@ -1,10 +1,9 @@
-import NextAuth, { AuthOptions } from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
-import fs from "fs";
-const filePath = "data.json";
+import serverAuth from "../../../lib/serverAuth";
 
-export const authOptions: AuthOptions = {
+export const authOptions: NextAuthOptions = {
   providers: [
     Credentials({
       id: "credentials",
@@ -20,68 +19,73 @@ export const authOptions: AuthOptions = {
         },
       },
       async authorize(credentials) {
-        console.log("credentials", credentials);
+        // const response = await fetch("/api/credentials");
+        // const credentialsData = await response.json();
 
+        // console.log("credentials", credentials);
+        const currentUser = await serverAuth({
+          email: credentials?.email || "",
+          password: credentials?.password || "",
+        });
+        console.log("currentUser ", currentUser);
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Email and password required");
         }
 
-        if (fs.existsSync(filePath)) {
-          const fileData = fs.readFileSync(filePath, "utf-8");
-          const jsonData = JSON.parse(fileData);
-          console.log("jsonData", jsonData);
-          console.log("credentials", credentials);
+        // Find the user based on email
+        // const foundUser = credentialsData.find(
+        //   ({ email }: { email: string }) => email === credentials.email
+        // );
 
-          // Filter the object based on email
-          const existingUser = jsonData?.filter(
-            ({ email: eleemail }: { email: string }) =>
-              eleemail === credentials.email
-          );
-          console.log("existing user ", existingUser);
-          let foundUser = null;
-          if (existingUser?.length > 0) {
-            foundUser = existingUser?.[0];
-          }
-          if (!foundUser.hashedPassword) {
-            throw new Error("Email does not exist");
-          }
-
-          const isCorrectPassword = await compare(
-            credentials.password,
-           foundUser.hashedPassword
-          );
-
-          if (!isCorrectPassword) {
-            throw new Error("Incorrect password");
-          } else {
-            delete foundUser.hashedPassword;
-            foundUser["role"] = "Unverified Email";
-            return foundUser;
-          }
+        if (JSON.stringify(currentUser) === JSON.stringify({})) {
+          throw new Error("Email does not exist");
         }
-        return null;
+
+        const isCorrectPassword = await compare(
+          credentials.password,
+          currentUser?.hashedPassword
+        );
+
+        if (!isCorrectPassword) {
+          throw new Error("Incorrect password");
+        }
+
+        // Create a new object without 'hashedPassword' property
+        const sanitizedUser = { ...currentUser };
+        delete sanitizedUser?.hashedPassword;
+
+        sanitizedUser.role = "Unverified Email";
+
+        return sanitizedUser;
       },
     }),
   ],
   callbacks: {
+    // async redirect({ url, baseUrl }) {
+    //   // Allows relative callback URLs
+    //   if (url.startsWith("/")) return `${baseUrl}${url}`
+    //   // Allows callback URLs on the same origin
+    //   else if (new URL(url).origin === baseUrl) return url
+    //   return baseUrl
+    // },
     async jwt({ token, user }) {
-      if (user) token.role = user?.role;
+      if (user) token.user = user;
       return token;
     },
     async session({ session, token }) {
       // if (session?.user) session.user.role = token.role;
       // return session;
-
-      return { ...session,
-        user: { ...session.user,
+      return {
+        ...session,
+        user: {
+          ...session.user,
           id: token.sub,
           isAdmin: token.isAdmin,
           role: token.role,
-        }
-      }
+        },
+      };
     },
   },
-  secret: "NEXT_SECRET",
 };
 
 const handler = NextAuth(authOptions);

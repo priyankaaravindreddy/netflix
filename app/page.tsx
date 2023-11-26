@@ -1,28 +1,23 @@
+import React from "react"
 import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
 
 import { authOptions } from "./api/auth/[...nextauth]/route";
-// export async function getServerSideProps(context) {
-//   const session = await getServerSession(authOptions);
+import Navbar from './components/Navbar';
 
-//   if (!session) {
-//     return {
-//       redirect: {
-//         destination: "/auth",
-//         permanent: false,
-//       },
-//     };
-//   }
-
-//   return {
-//     props: {},
-//   };
-// }
-const Home = async() => {
+const Home = async () => {
   const session = await getServerSession(authOptions);
-
-  return <div>  <h1>Member Server Session</h1>
-  <p>{session?.user?.email}</p>
-  <p>{session?.user?.role}</p></div>;
+  console.log("Home session",session)
+  if (!session) {
+    return <p>Redirecting....</p>
+  }
+  return (
+    <div>
+      <Navbar/>
+      <p>{session?.user?.email}</p>
+      <p>{session?.user?.role}</p>
+    </div>
+  );
 };
 
 export default Home;
