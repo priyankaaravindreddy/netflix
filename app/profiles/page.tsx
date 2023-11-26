@@ -46,7 +46,7 @@ const App = () => {
   }, [router, session]);
   
   if (!session) {
-    return <p>Redirecting....</p>
+    return redirect('/auth');
   }
   return (
     <div className="flex items-center h-full justify-center">

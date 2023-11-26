@@ -3,7 +3,6 @@ import React from "react";
 import axios from "axios";
 import { useCallback, useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
-import { redirect } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Input from "../components/Input";
@@ -19,12 +18,6 @@ const Auth = () => {
   const [password, setPassword] = useState("");
 
   const [variant, setVariant] = useState("login");
-
-  // React.useEffect(() => {
-  // if (session) {
-  //   router.push("/");
-  // }
-  // }, [session, router]);
 
   const toggleVariant = useCallback(() => {
     setVariant((currentVariant: string) =>
@@ -49,7 +42,7 @@ const Auth = () => {
     } catch (error) {
       console.log(error);
     }
-  }, [email, password, router]);
+  }, [email, password]);
 
   // Call the checkIfSignedIn function when the component mounts
   useEffect(() => {
