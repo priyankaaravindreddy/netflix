@@ -20,6 +20,28 @@ const serverAuth = async (credentials: { email: string; password: string }) => {
     }
 
     return currentUser?.length > 0 ? currentUser?.[0] : {};
+  } else {
+    try {
+      const response = await fetch("/.netlify/functions/fetchData");
+      const jsonData = await response.json();
+      console.log("jsonData ", jsonData);
+      const currentUser = jsonData?.filter(
+        ({
+          email: eleEmail,
+          hashedPassword: elePassword,
+        }: {
+          email: string;
+          hashedPassword: string;
+        }) => eleEmail === credentials?.email
+      );
+      if (!currentUser) {
+        throw new Error("Not signed in");
+      }
+      console.log("currentUser?.length > 0 ", currentUser?.length > 0);
+      return currentUser?.length > 0 ? currentUser?.[0] : {};
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
   }
   return {};
 };
