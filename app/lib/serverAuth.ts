@@ -37,8 +37,7 @@ const serverAuth = async (credentials: { email: string; password: string }) => {
       if (!currentUser) {
         throw new Error("Not signed in");
       }
-      console.log("currentUser?.length > 0 ", currentUser?.length > 0);
-      return currentUser?.length > 0 ? currentUser?.[0] : {};
+      return currentUser?.[0] || {};
     } catch (error) {
       console.error("Error fetching data:", error);
     }
