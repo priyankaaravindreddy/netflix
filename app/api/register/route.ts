@@ -35,9 +35,10 @@ export async function POST(req: Request) {
       );
       const filedata=fs.readFileSync(filePath, "utf-8")
       console.log("filedata ", JSON.parse(filedata))
-      return NextResponse.json({ success: true });
+      return NextResponse.json({ success: "hi" });
     }
   } catch (e) {
     console.log(e);
   }
+  return NextResponse.json({ success: "hello" });
 }
