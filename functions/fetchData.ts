@@ -25,7 +25,7 @@ export const handler: Handler = async (event, context) => {
   }
 };
 
-async function fetchDataFromApi(apiKey: string): Promise<any> {
+async function fetchDataFromApi(apiKey: string) {
   // Implement your data fetching logic here using apiKey
   // For example, fetch data from an API using axios or fetch
   // Return the fetched data
