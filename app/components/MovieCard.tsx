@@ -1,3 +1,4 @@
+'use client'
 import React, { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";

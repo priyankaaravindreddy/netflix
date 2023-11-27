@@ -9,6 +9,7 @@ export async function POST(req: Request) {
 
   const { email, name, password } = await req.json();
   try {
+    console.log("fsexists ",fs.existsSync(filePath))
     if (fs.existsSync(filePath)) {
       const fileData = fs.readFileSync(filePath, "utf-8");
       const jsonData = JSON.parse(fileData);
@@ -26,15 +27,17 @@ export async function POST(req: Request) {
       );
       return NextResponse.json({ success: true });
     } else {
+      console.log("in else of register")
       const hashedPassword = await bcrypt.hash(password, 12);
       fs.writeFileSync(
         "data.json",
         JSON.stringify([{ email, name, hashedPassword }])
       );
+      const filedata=fs.readFileSync(filePath, "utf-8")
+      console.log("filedata ", JSON.parse(filedata))
       return NextResponse.json({ success: true });
     }
   } catch (e) {
     console.log(e);
   }
-  return NextResponse.json({ success: "hello" });
 }
