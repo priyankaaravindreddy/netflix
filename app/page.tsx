@@ -11,7 +11,7 @@ import MovieList from "./components/MovieList";
 const Home = async () => {
   const session = await getServerSession(authOptions);
   const movies = await useMovieList();
-  console.log("Home session", session);
+  console.log("Home session", movies);
   if (!session) {
     return redirect("/auth");
   }
