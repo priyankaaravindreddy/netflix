@@ -1,9 +1,10 @@
-import NextAuth, { NextAuthOptions } from "next-auth";
+import { NextAuthOptions } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 import serverAuth from "../../../lib/serverAuth";
+import {User} from "../../../models/user"
 
-export const authOptions: NextAuthOptions = {
+export const authOptions = {
   providers: [
     Credentials({
       id: "credentials",
@@ -19,13 +20,14 @@ export const authOptions: NextAuthOptions = {
         },
       },
       async authorize(credentials) {
+        const { email, password } = credentials || {};
         // const response = await fetch("/api/credentials");
         // const credentialsData = await response.json();
 
         // console.log("credentials", credentials);
         const currentUser = await serverAuth({
-          email: credentials?.email || "",
-          password: credentials?.password || "",
+          credEmail: email || "",
+          password: password || "",
         });
         console.log("currentUser ", currentUser);
         if (!credentials?.email || !credentials?.password) {
@@ -43,20 +45,15 @@ export const authOptions: NextAuthOptions = {
 
         const isCorrectPassword = await compare(
           credentials.password,
-          currentUser?.hashedPassword
+          currentUser.password||''
         );
 
         if (!isCorrectPassword) {
           throw new Error("Incorrect password");
         }
 
-        // Create a new object without 'hashedPassword' property
-        const sanitizedUser = { ...currentUser };
-        delete sanitizedUser?.hashedPassword;
 
-        sanitizedUser.role = "Unverified Email";
-
-        return sanitizedUser;
+        return currentUser;
       },
     }),
   ],
@@ -81,7 +78,6 @@ export const authOptions: NextAuthOptions = {
           ...session.user,
           id: token.sub,
           isAdmin: token.isAdmin,
-          role: token.role,
         },
       };
     },

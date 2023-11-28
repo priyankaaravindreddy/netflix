@@ -24,6 +24,6 @@
     "types": ["@netlify/functions"]
   },
   
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/api/auth/[...nextauth]/route.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/api/auth/[...nextauth]/route.ts", "app/api/auth/[...nextauth]/options.js"],
   "exclude": ["node_modules"]
 }

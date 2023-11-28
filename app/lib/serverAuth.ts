@@ -1,10 +1,13 @@
 import fs from "fs";
 const filePath = "data.json";
 import connectToDB from "../database";
-import User from "../models/user";
+import { UserDocument, UserModel, User } from "../models/user";
 import { NextResponse } from "next/server";
 
-const serverAuth = async (credentials: { credEmail: string; password: string }) => {
+const serverAuth = async (credentials: {
+  credEmail: string;
+  password: string;
+}) => {
   // if (fs.existsSync(filePath)) {
   //   const fileData = fs.readFileSync(filePath, "utf-8");
   //   const jsonData = JSON.parse(fileData);
@@ -48,14 +51,18 @@ const serverAuth = async (credentials: { credEmail: string; password: string }) 
   // return {};
   await connectToDB();
   try {
-    const currentUser = await User.findOne({ email : credentials.credEmail })
+    const currentUser: UserDocument | null = await User.findOne({
+      email: credentials.credEmail,
+    })
       .lean()
       .exec();
 
-    return currentUser || {}
+    return currentUser
+      ? { email: currentUser?.email, password: currentUser?.password }
+      : { email: "", password: "" };
   } catch (e) {
     console.log(e);
-    return {}
+    return { email: "", password: "" };
   }
 };
 

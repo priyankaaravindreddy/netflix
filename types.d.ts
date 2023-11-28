@@ -19,11 +19,10 @@ type NavbarItemProps = {
   active?: boolean;
 };
 
-
 type PlayButtonProps = {
   movieId: string;
-}
-type MovieInterface  = {
+};
+type MovieInterface = {
   id: string;
   title: string;
   description: string;
@@ -31,17 +30,19 @@ type MovieInterface  = {
   videoUrl: string;
   duration: string;
   genre: string;
-}
+};
 
-type MovieCardProps =  {
+type MovieCardProps = {
   data: MovieInterface;
-}
+};
 
-type MovieListProps =  {
+type MovieListProps = {
   data: MovieInterface[];
   title: string;
-}
+};
 
-type FavoriteButtonProps =  {
-  movieId: string
-}
+type FavoriteButtonProps = {
+  movieId: string;
+};
+
+
