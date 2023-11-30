@@ -1,20 +1,18 @@
-import mongoose, { Schema, Document, Model } from "mongoose";
-interface User  {
+import mongoose, { Schema } from "mongoose";
+mongoose.connect('mongodb+srv://priyankaaravindreddy:HAel4GgURkSbvAEI@cluster0.y0zq20h.mongodb.net/AppDB');
+mongoose.Promise = global.Promise;
 
-  email: string;
-  password: string;
-};
+const userSchema = new Schema(
+  {
+    name: String,
+    email: String,
+    password: String,
+  },
+  {
+    timestamps: true,
+  }
+);
 
-interface UserDocument extends Document, User {}
+const User = mongoose.models.User || mongoose.model("User", userSchema);
 
-interface UserModel extends Model<UserDocument> {}
-const userSchema = new Schema<UserDocument, UserModel>({
-  email: { type: String, required: true },
-  password: { type: String, required: true },
-  // ... other fields
-});
-
-const User = mongoose.model<UserDocument, UserModel>('User', userSchema);
-
-export { User };
-export type { UserModel, UserDocument };
+export default User;

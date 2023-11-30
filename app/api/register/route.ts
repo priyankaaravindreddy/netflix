@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import connectToDB from "../../database";
-import {User} from "../../models/user";
+import User from "../../models/user"
 const filePath = "data.json";
 export async function POST(req: Request) {
   if (req.method !== "POST") {

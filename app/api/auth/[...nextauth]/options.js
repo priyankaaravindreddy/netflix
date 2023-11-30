@@ -1,8 +1,7 @@
-import { NextAuthOptions } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
-import serverAuth from "../../../lib/serverAuth";
-import {User} from "../../../models/user"
+import User  from "../../../models/user";
+import connectToDB from "../../../database";
 
 export const authOptions = {
   providers: [
@@ -25,35 +24,40 @@ export const authOptions = {
         // const credentialsData = await response.json();
 
         // console.log("credentials", credentials);
-        const currentUser = await serverAuth({
-          credEmail: email || "",
-          password: password || "",
-        });
-        console.log("currentUser ", currentUser);
-        if (!credentials?.email || !credentials?.password) {
+        // const currentUser = await serverAuth({
+        //   credEmail: email || "",
+        //   password: password || "",
+        // });
+        if (!email || !password) {
           throw new Error("Email and password required");
         }
 
-        // Find the user based on email
-        // const foundUser = credentialsData.find(
-        //   ({ email }: { email: string }) => email === credentials.email
-        // );
+        await connectToDB();
+        try {
+          const currentUser = await User.findOne({
+            email,
+          })
+            .lean()
+            .exec();
+          if (currentUser) {
+            throw new Error("Email does not exist");
+          }
+          const isCorrectPassword = await compare(
+            password,
+            currentUser.password || ""
+          );
 
-        if (JSON.stringify(currentUser) === JSON.stringify({})) {
-          throw new Error("Email does not exist");
+          if (!isCorrectPassword) {
+            throw new Error("Incorrect password");
+          }
+
+          return currentUser
+            ? { email: currentUser?.email, password: currentUser?.password }
+            : { email: "", password: "" };
+        } catch (e) {
+          console.log(e);
+          return { email: "", password: "" };
         }
-
-        const isCorrectPassword = await compare(
-          credentials.password,
-          currentUser.password||''
-        );
-
-        if (!isCorrectPassword) {
-          throw new Error("Incorrect password");
-        }
-
-
-        return currentUser;
       },
     }),
   ],
